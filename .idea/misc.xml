@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+  <component name="RemoteRepositoriesConfiguration">
+    <remote-repository>
+      <option name="id" value="6e023ef5-b351-496d-a8a5-f92e2be3a8b8" />
+      <option name="name" value="6e023ef5-b351-496d-a8a5-f92e2be3a8b8" />
+      <option name="url" value="https://repo.maven.apache.org/maven2" />
+    </remote-repository>
+  </component>
+</project>

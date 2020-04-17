@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello</title>
+</head>
+<body>
+<form th:action="@{'/pub-upgrade'}" method="post">
+    <span>sysId</span>
+    <input type="text" name="sysId">
+    <p/>
+    <span>version</span>
+    <input type="text" name="version">
+    <p/>
+    <span>content</span>
+    <input type="text" name="content">
+    <p/>
+    <span>areaId</span>
+    <input type="text" name="areaId">
+    <input type="text" name="areaId">
+    <input type="text" name="areaId">
+
+    <p/>
+    <input type="submit" value="提交">
+</form>
+</body>
+</html>
