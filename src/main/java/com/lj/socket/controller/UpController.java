@@ -1,5 +1,6 @@
 package com.lj.socket.controller;
 
+
 import com.lj.socket.Main;
 import com.lj.socket.Service.Server;
 import com.lj.socket.Utils.DataCheckUtil;
@@ -8,6 +9,8 @@ import com.lj.socket.entity.SendData;
 import com.lj.socket.entity.SysUpgrade;
 import com.lj.socket.entity.User;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -15,10 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 
 @Controller
@@ -27,6 +27,13 @@ public class UpController {
     public String fun(){
         System.out.println("Im index");
         return "hello";
+    }
+
+    @GetMapping("/get-online-users")
+    public String getOnlineUsers(Model model){
+        Server.removeCloseClient();
+        model.addAttribute("users", Main.users);
+        return "OnlineUserList";
     }
 
     @PostMapping("/pub-upgrade")
@@ -48,7 +55,9 @@ public class UpController {
 
 
                     //筛选符合推送条件的User存入itemUsers列表中
+                    System.out.println(sendData);
                     Server.removeCloseClient();
+
                     for (User user: Main.users) {
                         if(user.getSysId().equals(sysUpgrade.getSysId()) && areaId.contains(user.getAreaId())){
                             itemUsers.add(user);

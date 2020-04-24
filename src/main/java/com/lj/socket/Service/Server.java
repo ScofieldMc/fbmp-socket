@@ -1,18 +1,19 @@
 package com.lj.socket.Service;
 
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.lj.socket.Main;
 import com.lj.socket.entity.SendData;
-import com.lj.socket.entity.SysUpgrade;
 import com.lj.socket.entity.User;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -28,17 +29,24 @@ public class Server {
         System.out.println("服务启动成功");
         while (true) {
             Socket socket = serverSocket.accept();
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+            byte[] b = new byte[1024];
+            InputStream in = socket.getInputStream();
+            in.read(b,0,1024);
+            String userStr = new String(b,"utf-8");
+
+
             try {
+                JSONObject userJson = JSON.parseObject(userStr);
                 //接收客户端的信息
-                User user = (User)in.readObject();
-                System.out.println(user);
+                System.out.println("======================="+userJson);
+                User user = JSON.toJavaObject(userJson, User.class);
+
                 //封装socket
                 user.setSocket(socket);
                 Main.users.add(user);
 
 
-            } catch (ClassNotFoundException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -49,40 +57,51 @@ public class Server {
     //判断客户端是否断开连接（发送一个test判断）
     public static boolean isCloseed(Socket socket){
         try {
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            out.writeObject(new SendData("test",null));
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            writer.write("");
+            writer.newLine();
+            writer.flush();
+            SendData sendData = new SendData("test", null);
+            String senddata = JSON.toJSONString(sendData);
+            writer.write(senddata);
+            writer.newLine();
+            writer.flush();
             return false;
         }catch (Exception e){
+           // e.printStackTrace();
             return true;
 
         }
 
     }
-    public static void transput(Socket socket,SendData sendData) throws IOException {
-        ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-        out.writeObject(sendData);
-    }
-    //****************************************************************************************
-    public static  boolean send(List<User> itemUsers,SendData sendData){
-        //removeCloseClient();
-        SysUpgrade sysUpgrade = (SysUpgrade) sendData.getData();
-        List<Integer> areaId = Arrays.asList(sysUpgrade.getAreaId());
-       try{
-           for (User user : itemUsers) {
-               transput(user.getSocket(),sendData);
-           }
-           return true;
-       } catch (IOException e) {
-           e.printStackTrace();
-           return false;
-       }
+
+    public static  boolean send(List<User> itemUsers, SendData sendData){
+        try{
+            for (User user : itemUsers) {
+                transput(user.getSocket(),sendData);
+            }
+            return true;
+        } catch (IOException e) {
+            //e.printStackTrace();
+            return false;
+        }
 
     }
-    //**************************************************************************************************
+    //发送方法
+    public static void transput(Socket socket,SendData sendData) throws IOException {
+        BufferedWriter write = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        write.write(JSON.toJSONString(sendData));
+        write.newLine();
+        write.flush();
+    }
+
+    //删除断开连接的
     public static void removeCloseClient(){
+        //System.out.println("befor:"+Main.users);
         List<User> tmpUsers = new ArrayList<User>();
 
         for (User user : Main.users) {
+
             if(isCloseed(user.getSocket())){
                 tmpUsers.add(user);
             }
@@ -90,6 +109,8 @@ public class Server {
         for (User user : tmpUsers) {
             Main.users.remove(user);
         }
+
+        //System.out.println("after:"+Main.users);
         System.out.println("在线人数为："+Main.users.size());
     }
 
